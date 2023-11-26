@@ -87,21 +87,23 @@ function Post() {
   maxBreaks = document.getElementById("maxBreaks").value;
   maxCourses = document.getElementById("maxCourses").value;
 
-  if (maxDays != 0) data.push(["maxDays", maxDays]);
-  if (maxBreaks != 0) data.push(["maxBreaks", maxBreaks]);
-  if (maxCourses != 0) data.push(["maxCourses", maxCourses]);
+  data.push(["maxDays", maxDays]);
+  data.push(["maxBreaks", maxBreaks]);
+  data.push(["maxCourses", maxCourses]);
 
   var json = JSON.stringify(data);
 
   // send json to server
   var request = new XMLHttpRequest();
-
   request.open("POST", "/schedule", true);
   request.setRequestHeader("Content-Type", "application/json");
   request.onreadystatechange = function () {
     if (request.readyState == 4 && request.status == 200) {
       var json = JSON.parse(request.responseText);
-
+      if (json["status"] == "error") {
+        alert(json["error"]);
+        return;
+      }
       var div = document.getElementById("solutionTables");
       if (document.getElementById("solutionTables") != null) {
         //delete all its children

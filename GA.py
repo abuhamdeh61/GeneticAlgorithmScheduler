@@ -6,16 +6,17 @@ MUTATION_RATE = 0.02
 POPULATION_SIZE = 100
 
 class GA:
-    def __init__(self,Schedule,GenNum,maxDays, maxBreaks, maxCourses):
+    def __init__(self,schedule,GenNum,maxDays, maxBreaks, maxCourses):
         self.maxDays = int(maxDays)
         self.maxBreaks = int(maxBreaks)
         self.maxCourses = int(maxCourses)
         self.populationSize = POPULATION_SIZE 
         self.mutationRate = MUTATION_RATE
         self.__Population = []
-        self.__Population.append(Schedule)
-        print(len(self.__Population[0].get_schedule()))
+        self.__Population.append(schedule)
+
         self.__Population = self.initializePopulation()
+ 
         self.Generation =0 
 
         for i in range(GenNum):
@@ -36,9 +37,6 @@ class GA:
                     newCourses.append(courses[j])
             population.append(Schedule(newCourses, self.maxDays, self.maxBreaks, self.maxCourses))
         
-        for schedule in population:
-            with open("log.txt", "a") as myfile:
-                myfile.write(str(schedule.get_fitness()) +" "+str(len(schedule.get_schedule()))+ "\n")
         return population
         
     def DoGeneration(self):
@@ -55,13 +53,14 @@ class GA:
             
             offSpring.append(child1)
             offSpring.append(child2)
-        
+           
+
         self.__Population += offSpring
         self.__Population.sort(key=lambda x: x.get_fitness() if x else 0, reverse=True)
-        
         self.__Population = self.__Population[:self.populationSize]
         self.Generation += 1
-        #print("Generation: ", self.Generation, " Fitness: ", self.__Population[0].get_fitness(),len(self.__Population[0].get_schedule()))
+                
+        #print("Generation: ", self.Generation, " Fitness: ", self.__Population[0].get_fitness())
         
     def crossover(self, mother, father):
         if len(mother.get_schedule()) < 2 or len(father.get_schedule()) < 2:
@@ -69,13 +68,15 @@ class GA:
         rand1 = random.randint(1, max(1,len(mother.get_schedule()) - 1))
         tempSchedule = mother.get_schedule()[:rand1]
         appeard = set([course.get_id() for course in tempSchedule])
-        
-        rand2 = random.randint(rand1, max(1,len(mother.get_schedule()) - 1))
-        for i in range(rand1, min(rand2-1, len(father.get_schedule()) - 1)):
+    
+        for i in range(rand1, len(father.get_schedule()) ):
             if father.get_schedule()[i].get_id() not in appeard:
                 tempSchedule.append(father.get_schedule()[i])
                 appeard.add(father.get_schedule()[i].get_id())
-        return Schedule(tempSchedule, self.maxDays, self.maxBreaks, self.maxCourses)
+
+        sch = Schedule(tempSchedule, self.maxDays, self.maxBreaks, self.maxCourses)
+        sch.get_fitness()
+        return sch
 
     def mutate(self, child):
         rand = random.uniform(0,1)
@@ -86,7 +87,37 @@ class GA:
                 temp.pop(rand1)
         child.set_schedule(temp)
         return child
+    
+   
     def GetParent(self):
+        rand = random.uniform(0,1)
+        if rand < 0.5:
+            return self.tournamentSelection()
+        else:
+            return self.biasedRandomSelection()
+        
+    def biasedRandomSelection(self):
+        sm = sum([x.get_fitness() for x in self.__Population])
+        if sm == 0:
+            return self.tournamentSelection()
+        prob = [x.get_fitness()/sm for x in self.__Population]
+        probSum = sum(prob)
+        normProb = [x/probSum for x in prob]
+        
+        cumulatedProb = [0]*len(normProb)
+        tot = 0
+        for i in range(len(normProb)):
+            tot += normProb[i]
+            cumulatedProb[i] = tot
+        
+        selected = random.uniform(0,1)
+        
+        for i in range(len(cumulatedProb)):
+            if selected <= cumulatedProb[i]:
+                return self.__Population[i]
+        
+        return self.__Population[len(self.__Population) - 1]
+    def tournamentSelection(self):
         candidateA = random.randint(0, self.populationSize - 1)
         candidateB = random.randint(0, self.populationSize - 1)
         while candidateA == candidateB:
@@ -97,28 +128,27 @@ class GA:
             return self.__Population[candidateA]
         else:
             return self.__Population[candidateB]
+    
+    
+    
+# courseList = [
 
-    
-    
-    
-courseList = [
-
-    Course(1, "Math", 8, 9, [1, 3, 5], "Room 1"),
-    Course(2, "English", 9, 10, [1, 3, 5], "Room 2"),
-    Course(3, "Physics", 10, 11, [1, 3, 5], "Room 3"),
-    Course(4, "Chemistry", 11, 12, [1, 3, 5], "Room 4"),
-    Course(5, "History", 12, 13, [1, 3, 5], "Room 5"),
-    Course(6, "Geography", 13, 14, [1, 3, 5], "Room 6"),
-    Course(7, "Biology", 14, 15, [1, 3, 5], "Room 7"),
-    Course(8, "Computer Science", 15, 16, [1, 3, 5], "Room 8"),
-    Course(9, "Spanish", 16, 17, [1, 3, 5], "Room 9"),
-]
+#     Course(1, "Math", 8, 9, [1, 3, 5], "Room 1"),
+#     Course(2, "English", 9, 10, [1, 3, 5], "Room 2"),
+#     Course(3, "Physics", 10, 11, [1, 3, 5], "Room 3"),
+#     Course(4, "Chemistry", 11, 12, [1, 3, 5], "Room 4"),
+#     Course(5, "History", 12, 13, [1, 3, 5], "Room 5"),
+#     Course(6, "Geography", 13, 14, [1, 3, 5], "Room 6"),
+#     Course(7, "Biology", 14, 15, [1, 3, 5], "Room 7"),
+#     Course(8, "Computer Science", 15, 16, [1, 3, 5], "Room 8"),
+#     Course(9, "Spanish", 16, 17, [1, 3, 5], "Room 9"),
+# ]
 # sch = Schedule(courseList,3, 0,7)
 
-# ga = GA(sch,100,3, 60,7)
+# ga = GA(sch,10,3, 60,7)
 
 # schedule = ga.getBestSchedules(1)[0]
-
+ 
 # for course in schedule.get_schedule():
 #     print(course.get_name(), course.get_days(), course.get_start_time(), course.get_end_time(), course.get_location())
 

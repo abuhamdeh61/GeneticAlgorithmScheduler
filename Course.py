@@ -14,11 +14,17 @@ class Course:
     def get_name(self):
         return self.__name
     def get_start_time(self):
-        #convert 00:00 to minutes
-        m = int(self.__start_time[:2])*60 + int(self.__start_time[3:])
+        #check if the time is in the format hh:mm and is string 
+        if type(self.__start_time) == str and ":" in self.__start_time:
+            m = int(self.__start_time[:2])*60 + int(self.__start_time[3:])
+        else:
+            m = int(self.__start_time)
         return m
     def get_end_time(self):
-        m = int(self.__end_time[:2])*60 + int(self.__end_time[3:])
+        if type(self.__end_time) == str and ":" in self.__end_time:
+            m = int(self.__end_time[:2])*60 + int(self.__end_time[3:])
+        else:
+            m = int(self.__end_time)
         return  m
     def get_days(self):
         return self.__days

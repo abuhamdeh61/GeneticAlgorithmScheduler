@@ -5,7 +5,6 @@ class Schedule:
     def __init__(self, courseList, maxDays, maxBreaks, maxCourse):
         self.__schedule = courseList      
         self.__schedule.sort(key=lambda course: (course.get_days(), course.get_start_time()))   
-        # convert these to int
         self.__maxDays = int(maxDays)
         self.__maxBreaks = int(maxBreaks)
         self.__maxCourses = int(maxCourse)
@@ -20,25 +19,46 @@ class Schedule:
     def get_schedule(self):
         return self.__schedule
     def getNormalizedFitness(self) :
-   
-        IDs = set([course.get_id() for course in self.__schedule])
-        
-        if len(IDs) != len(self.__schedule):
-            return 0
                 
         valid= [1]*len(self.__schedule)
-        for  course in (self.__schedule):
-            for otherCourse in (self.__schedule):
-                ok = True
-                if not ok:
-                    break
-                if course.get_id() != otherCourse.get_id() and valid[self.__schedule.index(course)] == 1 and valid[self.__schedule.index(otherCourse)] == 1:
-                    for day in course.get_days():
-                        if day in otherCourse.get_days() and course.get_start_time() <= otherCourse.get_end_time() and course.get_end_time() >= otherCourse.get_start_time():
+        for i in range(len(self.__schedule)):
+            course = self.__schedule[i]
+            ok  = 1 
+            for j in range(i+1,len(self.__schedule)):
+                otherCourse = self.__schedule[j]
+                if valid[self.__schedule.index(otherCourse)] == 0  :
+                    continue
+                if course.get_id() == otherCourse.get_id():
+                    rand = random.randint(0,1)
+                    if rand == 0:
+                        valid[self.__schedule.index(course)] = 0
+                        ok = 0
+                        break
+                    else:
+                        valid[self.__schedule.index(otherCourse)] = 0
+                        continue
+                
+                for day in course.get_days():
+                    if day in otherCourse.get_days():
+                        if course.get_start_time() >= otherCourse.get_start_time() and course.get_end_time() > otherCourse.get_start_time():
                             rand = random.randint(0,1)
-                            
-                            valid[self.__schedule.index(otherCourse)] = 0
-                            
+                            if rand == 0:
+                                valid[self.__schedule.index(course)] = 0
+                                ok = 0
+                                break
+                            else:
+                                valid[self.__schedule.index(otherCourse)] = 0
+                                ok = -1 
+                                break
+                    if ok == -1:
+                        break
+                if ok == 0:
+                    break
+                
+            with open('log.txt','a') as f:
+                for i in valid:
+                    f.write(str(i)+" ")
+                f.write("\n")
         #extract invalid courseList
         newSchedule = []
         for i in range(len(valid)):
@@ -47,14 +67,15 @@ class Schedule:
         
         self.__schedule = newSchedule
         
-        #that the days are not more than maxDays
         fitness = [0]*3
-        weights = [.6,.2,.2]
+        weights = [30,30,100]
         
         days= len(set([day for course in self.__schedule for day in course.get_days()]))
         
         
-        fitness[0] = min(1,  days / self.__maxDays)
+        #calc fitness for days with strong math function that the penalty will be high if the days are more than maxDays and more higher if the days are less than maxDays
+        days = self.__maxDays - days
+        fitness[0] = 1 / (abs(days)*(1 if days <=0 else 2 )+ 1)
         
         
         #calculate the breaks between only the valid courseList
@@ -71,15 +92,19 @@ class Schedule:
                             breaks += self.__schedule[i+1].get_start_time() - self.__schedule[i].get_end_time()
                      
 
-        total_breaks_penalty = max(0, breaks - self.__maxBreaks)  # Calculate the penalty for exceeding maxBreaks
-        fitness[1] = 1 / (1 + total_breaks_penalty) 
+        breaks = abs(breaks - self.__maxBreaks ) # Calculate the penalty for exceeding maxBreaks
+        fitness[1] = 1 / (1 + (breaks if breaks <=self.__maxBreaks else self.__maxBreaks * 2)) 
             
-        #calculate that courses number are close to maxCourse as possible with strong equation
         courses = len(self.__schedule)
-        fitness[2] = 1 / (1 + abs(self.__maxCourses - courses))
+        courses = courses - self.__maxCourses 
+        fitness[2] = 1 / (abs(courses) * (0 if courses >= 0 else 10)+ 1)
         
-        #normalize 
-        normalized_fitness = sum(f * w for f, w in zip(fitness, weights)) / sum(weights)
+
+        normalized_fitness = 0
+        
+        for i in range(len(fitness)):
+            normalized_fitness += fitness[i] * weights[i]
+            
         return normalized_fitness
 
 
@@ -116,3 +141,9 @@ class Schedule:
 #     Course(400741, 60, "13:00", "14:00", ['MO', 'WE'], "Location 30")
 # ]
 
+
+
+# sch = Schedule(courses, 3, 0, 7)
+# print(sch.get_fitness())
+# for course in sch.get_schedule():
+#     print(course.get_id(), course.get_days(), course.get_start_time(), course.get_end_time(), course.get_location())

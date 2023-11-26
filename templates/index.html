@@ -108,4 +108,36 @@
 
 </div>
 
+<!-- <script>
+  //on laod load this data
+  //[["1","AI","09:00","10:00",["Su","Tu","Th"],"IT"],["2","SE","08:00","09:00",["Su","Tu","Th"],"IT"],["2","SE","09:00","10:00",["Su","Tu","Th"],"IT"],["3","ALGO","11:00","12:00",["Su","Tu","Th"],"IT"],["3","JAVA","02:00","03:00",["Su","Tu","Th"],"IT"]]
+  // into the table
+  var data = [
+    ["1", "AI", "09:00", "10:00", ["Su", "Tu", "Th"], "IT"],
+    ["2", "SE", "08:00", "09:00", ["Su", "Tu", "Th"], "IT"],
+    ["2", "SE", "09:00", "10:00", ["Su", "Tu", "Th"], "IT"],
+    ["3", "ALGO", "11:00", "12:00", ["Su", "Tu", "Th"], "IT"],
+    ["3", "JAVA", "02:00", "03:00", ["Su", "Tu", "Th"], "IT"]
+  ];
+  var table = document.getElementById("classTable");
+  var tbody = table.getElementsByTagName("tbody")[0];
+  var rowCount = table.rows.length;
+  var row = table.insertRow(rowCount);
+  for (var i = 0; i < data.length; i++) {
+    row = table.insertRow(rowCount);
+    row.insertCell(0).innerHTML = data[i][0];
+    row.insertCell(1).innerHTML = data[i][1];
+    row.insertCell(2).innerHTML = data[i][2];
+    row.insertCell(3).innerHTML = data[i][3];
+    row.insertCell(4).innerHTML = (parseInt(data[i][3].split(":")[0]) - parseInt(data[i][2].split(":")[0])) * 60;
+    row.insertCell(5).innerHTML = data[i][4];
+    row.insertCell(6).innerHTML = data[i][5];
+    row.insertCell(7).innerHTML = '<input type="button" class="btn btn-danger" value = "Remove" onclick="Javacsript:deleteRow(this)">';
+  }
+  //fill maxdays
+  document.getElementById("maxDays").value = 3;
+  document.getElementById("maxBreaks").value = 60;
+  document.getElementById("maxCourses").value = 3;
+
+</script> -->
 {% endblock %}

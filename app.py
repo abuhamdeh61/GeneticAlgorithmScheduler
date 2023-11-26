@@ -27,7 +27,9 @@ def schedule():
                     
                     days = []
                     for day in d[4]:
-                      
+                        if type(day) == int:
+                            days.append(day)
+                            continue
                         day = day.strip().lower()[:2]
                         if day == 'su':
                             days.append(1)
@@ -50,21 +52,13 @@ def schedule():
             maxCourses = data[len(data)-3][1]
             
             schedule = Schedule(courseList,maxDays,maxBreaks,maxCourses)
-            for co in schedule.get_schedule():
-                #convert start to 00:00 format
-                start = str(co.get_start_time()//60)+":"+str(co.get_start_time()%60)
-                end = str(co.get_end_time()//60)+":"+str(co.get_end_time()%60)
-                print(co.get_name(),co.get_days(),start,end,co.get_location())
-            ga = GA(schedule,500,maxDays,maxBreaks,maxCourses)
-           
+            ga = GA(schedule,50,maxDays,maxBreaks,maxCourses)
             schedule = ga.getBestSchedules(1)[0].get_schedule()
             data = [[]]
             
             for course in schedule:
-                #print days
                 data[0].append({'id':course.get_id(),'name':course.get_name(),'start_time':course.get_start_time(),'end_time':course.get_end_time(),'days':course.get_days(),'location':course.get_location()})
             
-            #print(data)
             return json.dumps({'status':'success','data':data})
         
         except Exception as e:
