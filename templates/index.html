@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="container">
+
+  <h2>Class Schedule</h2>
+  <div class="group  p-3">
+
+    <div class="group  p-3 row">
+      <div class="col-md-6">
+        <label for="classId">Class ID:</label>
+        <input type="text" id="classId" name="classId">
+      </div>
+
+      <div class="col-md-6">
+        <label for="className">Class Name:</label>
+        <input type="text" id="className" name="className">
+      </div>
+    </div>
+
+    <div class="group  p-3 row">
+      <div class="col-md-6">
+        <label for="startTime">Class Start Time:</label>
+        <input type="time" id="startTime" name="startTime">
+      </div>
+
+      <div class="col-md-6">
+        <label for="duration">Class Duration in minutes:</label>
+        <input type="text" id="duration" name="duration">
+      </div>
+    </div>
+
+    <div class="group  p-3 row">
+      <div class="col-md-6">
+        <label for="classLocation">Location:</label>
+        <input type="text" id="classLocation" name="classLocation">
+      </div>
+
+      <div class="col-md-6">
+        <label for="days">Days:</label>
+        <select id="daySelect" multiple="multiple" name="days">
+          <option value="Sat">Saturday</option>
+          <option value="Sun">Sunday</option>
+          <option value="Mon">Monday</option>
+          <option value="Tue">Tuesday</option>
+          <option value="Wed">Wednesday</option>
+          <option value="Thu">Thursday</option>
+          <option value="Fri">Friday</option>
+        </select>
+      </div>
+    </div>
+
+
+    <div class="group  p-3 row">
+      <div class="col-md-6">
+        <label for="maxDay">Max days:</label>
+        <input type="number" id="maxDays">
+      </div>
+
+      <div class="col-md-6">
+        <label for="maxBreak">Max Break in minutes:</label>
+        <input type="number" id="maxBreaks">
+      </div>
+    </div>
+
+    <div class="group  p-3 row">
+      <div class="col-md-6">
+        <label for="maxCourse">Max Courses:</label>
+        <input type="number" id="maxCourses">
+      </div>
+    </div>
+
+    <div class="col-md-12">
+      <button type="button" class=" btn btn-primary" onclick="addRow()">Add Class</button>
+    </div>
+  </div>
+
+
+  <form id="classForm" class="form-inline row" action={{url_for('schedule')}}>
+
+    <table name="table" id="classTable" class="table table-striped table-hover table-bordered">
+      <thead class="thead-dark">
+        <tr>
+          <th>Class ID</th>
+          <th>Class Name</th>
+          <th>Class Start Time</th>
+          <th>Class End Time</th>
+          <th>Class Duration in minutes</th>
+          <th>Days</th>
+          <th>Location</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Table rows will be added here dynamically -->
+      </tbody>
+    </table>
+
+    <br />
+    <div class="col-md-12">
+      <button type="button" onclick="Post()" class="btn btn-primary">Submit</button>
+    </div>
+  </form>
+</div>
+<div class="container" id="solutionTables">
+</div>
+
+</div>
+
+{% endblock %}
